@@ -10,28 +10,28 @@ or in the "license" file accompanying this file. This file is distributed on an 
 */
 
 // Define our dependencies
-var express        = require('express');
-var session        = require('express-session');
-var passport       = require('passport');
+var express = require('express');
+var session = require('express-session');
+var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-var request        = require('request');
-var handlebars     = require('handlebars');
+var request = require('request');
+var handlebars = require('handlebars');
 
 // Define our constants, you will change these with your own
-const TWITCH_CLIENT_ID = '<YOUR CLIENT ID HERE>';
-const TWITCH_SECRET    = '<YOUR CLIENT SECRET HERE>';
-const SESSION_SECRET   = '<SOME SECRET HERE>';
-const CALLBACK_URL     = '<YOUR REDIRECT URL HERE>';  // You can run locally with - http://localhost:3000/auth/twitch/callback
+const TWITCH_CLIENT_ID = 'phs9qrg5l4mjewbt2r1k14dck8lcqv';
+const TWITCH_SECRET = '2p0nkwv5hikc0iokfe7ata6sbmn3bw';
+const SESSION_SECRET = '2';
+const CALLBACK_URL = 'http://localhost:3000/auth/twitch/callback';  // You can run locally with - http://localhost:3000/auth/twitch/callback
 
 // Initialize Express and middlewares
 var app = express();
-app.use(session({secret: SESSION_SECRET, resave: false, saveUninitialized: false}));
+app.use(session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(express.static('public'));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Override passport profile function to get user profile from Twitch API
-OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
   var options = {
     url: 'https://api.twitch.tv/helix/users',
     method: 'GET',
@@ -51,23 +51,23 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
   });
 }
 
-passport.serializeUser(function(user, done) {
-    done(null, user);
+passport.serializeUser(function (user, done) {
+  done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
-    done(null, user);
+passport.deserializeUser(function (user, done) {
+  done(null, user);
 });
 
 passport.use('twitch', new OAuth2Strategy({
-    authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
-    tokenURL: 'https://id.twitch.tv/oauth2/token',
-    clientID: TWITCH_CLIENT_ID,
-    clientSecret: TWITCH_SECRET,
-    callbackURL: CALLBACK_URL,
-    state: true
-  },
-  function(accessToken, refreshToken, profile, done) {
+  authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
+  tokenURL: 'https://id.twitch.tv/oauth2/token',
+  clientID: TWITCH_CLIENT_ID,
+  clientSecret: TWITCH_SECRET,
+  callbackURL: CALLBACK_URL,
+  state: true
+},
+  function (accessToken, refreshToken, profile, done) {
     profile.accessToken = accessToken;
     profile.refreshToken = refreshToken;
 
@@ -99,7 +99,7 @@ var template = handlebars.compile(`
 
 // If user has an authenticated session, display it, otherwise display link to authenticate
 app.get('/', function (req, res) {
-  if(req.session && req.session.passport && req.session.passport.user) {
+  if (req.session && req.session.passport && req.session.passport.user) {
     res.send(template(req.session.passport.user));
   } else {
     res.send('<html><head><title>Twitch Auth Sample</title></head><a href="/auth/twitch"><img src="http://ttv-api.s3.amazonaws.com/assets/connect_dark.png"></a></html>');
