@@ -21,9 +21,8 @@ async function selectClips(channel) {
                 console.log(error)
             })
 
-
-
-        for (var y = 0; y < 2; y++) {
+        
+        for (var y = 0; y < response.data.clips.length; y++) {
             var clip = { clip: response.data.clips[y].thumbnails.medium, duration: response.data.clips[y].duration }
             clips.push(clip);
         }
